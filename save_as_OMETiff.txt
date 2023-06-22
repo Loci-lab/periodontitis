@@ -1,0 +1,82 @@
+// **************************************************************************
+//
+//    File : save_as_OMETiff.groovy
+//
+//    Author: Peter Haub
+//    July.2022
+//    Copyright (C) 2022 Peter Haub
+//
+//    This is a minimal-version, experimental, prototype QuPath script.
+//    The script is not intended to be optimized and/or finalized.
+//
+//    It is primarily focused onto issues in the post
+//
+//    https://forum.image.sc/t/saving-to-ome-tiff-slow-warpy-and-qupath/69153
+//
+//    The script save an image as OME Tiff file.
+//
+//    USAGE:
+//    - Select an image entry in the QuPath project
+//    - Load the script in the QuPath script editor
+//    - Modify the 'PARAMETER' section in the script according to your needs
+//    - Run the script in the QuPath script editor
+//
+//
+//    The output path is specified in the parameter 'outpath'
+//    The output image resolution is defined by the parameter 'outputDownsample' (1 = full resolution).
+//    (see section 'Parameters')
+//
+//    Disclaimer
+//
+//    This script is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty
+//    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+//    See the GNU General Public License for more details.
+//
+//    This sript is free software: you can redistribute it and/or modify it
+//    under the terms of the GNU General Public License as published by the
+//    Free Software Foundation, either version 3 of the License,
+//    or (at your option) any later version.
+//
+//    You should have received a copy of the GNU General Public License along with this program.
+//    If not, see <https://www.gnu.org/licenses/>.
+//
+// **************************************************************************
+
+
+import javafx.application.Platform
+import qupath.lib.scripting.QP
+import qupath.lib.projects.Project
+import qupath.lib.gui.scripting.QPEx
+import qupath.lib.images.writers.ome.OMEPyramidWriter
+
+//  ****** PARAMETERS *********
+
+def outpath = "/gpfs/gsfs11/users/perezriverosp/hiplex oct nov 2022/"
+
+// OME.Tiff parameters
+def tilesize = 512
+def outputDownsample = 1
+def pyramidscaling = 4 
+def compression = OMEPyramidWriter.CompressionType.UNCOMPRESSED   //J2K_LOSSY     //J2K //UNCOMPRESSED //LZW //ZLIB
+
+//  ***************************
+
+def imageData = QPEx.getCurrentViewer().getImageData()
+def server = imageData.getServer()
+def name = getProjectEntry().getImageName()
+
+def filename = name + ".ome.tif"
+def pathOutput = outpath + filename
+
+println('Writing OME-TIFF ' + filename)
+
+new OMEPyramidWriter.Builder(server)
+    .compression(compression)
+    .parallelize()
+    .tileSize(tilesize)
+    .scaledDownsampling(outputDownsample, pyramidscaling)
+    .build()
+    .writePyramid(pathOutput)
+
+println('Done:' + filename)

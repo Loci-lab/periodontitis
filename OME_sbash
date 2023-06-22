@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+module load QuPath
+QuPath.sh --project /gpfs/gsfs11/users/perezriverosp/hiplex_oct_nov_2022/QUPATH03_slide01/project.qpproj script QUPATH03_slide06/scripts/Save_OMEtiff1.groovy 
